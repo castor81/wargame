@@ -145,7 +145,8 @@ input[type=text],input[type=number]{width:100%}
 .qr{background:#fff;padding:8px;border-radius:8px;width:144px;height:144px;flex:none}
 .qr img,.qr canvas{width:100%!important;height:100%!important;display:block}
 .board{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:12px;align-items:start}
-.mapw{position:relative;aspect-ratio:3/2;border-radius:8px;overflow:hidden;border:1px solid var(--ln);background:#222}
+.mapw{position:relative;aspect-ratio:3/2;border-radius:8px;border:1px solid var(--ln);background:#222}
+.mclip{position:absolute;inset:0;overflow:hidden;border-radius:7px}
 .mapw canvas{position:absolute;inset:0;width:100%;height:100%;filter:saturate(.95)}
 .mgrid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr)}
 .mgrid div{border:1px solid rgba(255,255,255,.35);position:relative}
@@ -153,6 +154,27 @@ input[type=text],input[type=number]{width:100%}
 .mgrid .hot{background:rgba(255,190,60,.22);border-color:rgba(255,190,60,.9)}
 .mk2{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;transition:left .8s,top .8s}
 .mk2 i{font:600 10px var(--f-mono);font-style:normal;background:rgba(0,0,0,.65);color:#fff;padding:1px 4px;border-radius:3px}
+.mk2{cursor:pointer;background:none;border:0;padding:4px;font:inherit;border-radius:8px;z-index:2}
+.mk2:hover,.mk2:focus-visible,.mk2.pin{outline:2px solid var(--ac);background:rgba(0,0,0,.25)}
+.tip{display:none;position:absolute;z-index:30;width:min(372px,calc(100% - 16px));background:var(--bg2,var(--glass2));color:var(--ink);border:1px solid var(--ln);border-radius:10px;padding:10px 12px;box-shadow:0 12px 32px rgba(0,0,0,.45);pointer-events:none;font-size:12px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.mk2:hover+.tip,.mk2:focus-visible+.tip,.mk2.pin+.tip{display:block}
+.tip.c0{left:8px}.tip.c1{left:50%;transform:translateX(-50%)}.tip.c2{right:8px}.tip.r0{bottom:8px}.tip.r1,.tip.r2{top:8px}
+.tip h4{margin:0 0 6px;display:flex;gap:8px;align-items:center;font-size:13px}
+.tip h4 em{margin-left:auto;font:600 11px var(--f-mono);font-style:normal;color:var(--mut)}
+.tip .sub{font:600 10px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:8px 0 3px}
+.dm{width:100%;border-collapse:collapse;font-size:11px}
+.dm th{font:600 9.5px var(--f-mono);color:var(--mut);padding:2px 1px;text-align:center}
+.dm td{padding:2px 1px;text-align:center;border-top:1px solid var(--ln2)}
+.dm td:first-child,.dm th:first-child{text-align:left;padding-right:4px;white-space:nowrap;max-width:96px;overflow:hidden;text-overflow:ellipsis}
+.dm .on{color:var(--tc);font-weight:700}.dm tfoot td{font-weight:700;color:var(--mut)}
+.tip .res{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tip .why{color:var(--mut);margin-top:3px}
+.tip svg.ch{width:100%;height:auto;display:block}
+.tip .twoc{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:end}
+.sh{display:grid;grid-template-columns:repeat(3,22px);grid-template-rows:repeat(3,22px);gap:2px}
+.sh b{display:grid;place-items:center;font:600 10px var(--f-mono);border-radius:3px;background:color-mix(in srgb,var(--tc) calc(var(--k)*22%),transparent);border:1px solid var(--ln);color:var(--ink)}
+.sh b.here{outline:2px solid var(--tc);outline-offset:1px}
+@media(max-width:760px){.tip{left:0!important;right:0!important;top:calc(100% + 6px)!important;bottom:auto!important;transform:none!important;width:auto}}
 .pulse{animation:pl 2.4s ease-in-out infinite}
 @keyframes pl{50%{opacity:.45}}
 .pipe{display:flex;gap:4px;flex-wrap:wrap}
@@ -192,7 +214,7 @@ th{font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;col
   <header class="panel hud top">
     <div class="brand">
       <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 28 9v14L16 30 4 23V9z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 20 16 8l7 12M11.5 16h9" fill="none" stroke="var(--ac)" stroke-width="2"/></svg>
-      <div><b>Wargame Studio</b><small>DEMÓ v0.2.1 · 2026-11-06</small></div>
+      <div><b>Wargame Studio</b><small>DEMÓ v0.2.2 · 2026-11-06</small></div>
     </div>
     <div class="vsep"></div>
     <div><div class="lbl">Játék</div><input type="text" id="gtitle" aria-label="Játék címe" style="min-height:30px;width:210px;font-weight:600"></div>
@@ -219,7 +241,7 @@ th{font:600 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;col
 /* ---------- segédek ---------- */
 const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const KEY='wgs-demo-v0.2', VER='v0.2.1 · 2026-11-06';
+const KEY='wgs-demo-v0.2', VER='v0.2.2 · 2026-11-06';
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 
@@ -311,7 +333,7 @@ function defPrompt(t,fn,role){
 }
 let S=(function(){try{const j=JSON.parse(lsGet(KEY));if(j&&j.v===2)return j}catch(e){}return defaults()})();
 if(!S.room){S.room=randCode();S.hostKey=randKey();S.evSince=0}
-const UI={view:'flow',vstep:null,sel:null,phone:null};
+const UI={view:'flow',vstep:null,sel:null,phone:null,pin:null};
 const save=()=>{if(IS_PHONE)return;lsSet(KEY,JSON.stringify(S));schedulePublish()};
 function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>t.hidden=true,2600)}
 
@@ -520,12 +542,48 @@ function renderRoster(){
 function drawQrs(){$$('.qr').forEach(el=>{if(el.firstChild)return;try{if(typeof QRCode==='function'){new QRCode(el,{text:el.dataset.url,width:128,height:128,colorDark:'#0F1B21',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.M});return}}catch(e){}el.innerHTML='<div style="font:600 11px var(--f-mono);color:#222;text-align:center;padding-top:50px">QR-könyvtár nem érhető el</div>'})}
 
 /* ---------- 3. Játéktér ---------- */
+const ACS=['VÉD','TÁM','FEL','MOZ','LOG','INF','PKE'];
+const TCOL={K:'#4C8FD6',P:'#D8605C',Z:'#3FA25C'};
+function teamCard(t,r,tn){
+  const ts=teamState(r)[t],ids=tn?Object.keys(tn.orders).filter(id=>id[0]===t).sort():[];
+  let h=`<h4>${sym(t,22)}<b>${TEAMS[t].nm}</b><span class="tg ${ts.idx>=0?'ok':'off'}">index ${ts.idx>=0?'+':''}${ts.idx}</span><em>${tn?'T'+tn.i+' · '+['Helyzet','Döntések','Elbírálás','Közlés'][tn.phase]:'—'}</em></h4>`;
+  h+='<div class="sub">Döntési mátrix · aktuális kör</div>';
+  if(!ids.length)h+='<div style="color:var(--mut)">Ebben a körben még nincs rögzített döntés.</div>';
+  else{
+    const cnt=Array(7).fill(0),sc=Object.fromEntries(SEC.map(x=>[x,0]));
+    const rows=ids.map(id=>{const o=tn.orders[id],sd=S.seats.find(x=>x.id===id),k=ACT.indexOf(o.act);if(k>=0)cnt[k]++;if(sc[o.sec]!==undefined)sc[o.sec]++;
+      return`<tr title="${esc(o.why||'')}"><td>${esc(sd?sd.fn:id)}</td>${ACT.map((_,j)=>`<td class="${j===k?'on':''}">${j===k?'●':'·'}</td>`).join('')}<td class="mono">${esc(o.sec)}</td></tr>`}).join('');
+    h+=`<table class="dm" style="--tc:${TCOL[t]}"><thead><tr><th>Szerep</th>${ACS.map((a,j)=>`<th title="${esc(ACT[j])}">${a}</th>`).join('')}<th>Szekt.</th></tr></thead><tbody>${rows}</tbody><tfoot><tr><td>Σ</td>${cnt.map(c=>`<td>${c||''}</td>`).join('')}<td></td></tr></tfoot></table>`;
+    const mx=Math.max(1,...Object.values(sc));
+    h+=`<div class="sub">Szektor-eloszlás · az emblémás mező a jelenlegi pozíció</div><div class="twoc"><div class="sh" style="--tc:${TCOL[t]}">${SEC.map(x=>`<b class="${x===ts.sec?'here':''}" style="--k:${sc[x]/mx*4}" title="${x}: ${sc[x]} döntés">${sc[x]||''}</b>`).join('')}</div><div style="color:var(--mut)">${ids.length} döntés · ${Object.values(sc).filter(v=>v).length} szektor. Vezető szerep döntése adja a következő pozíciót.</div></div>`;
+  }
+  const a=tn&&tn.adj[t];
+  h+='<div class="sub">Elbírálás eredménye</div>';
+  h+=a?`<div class="res"><span class="tg ${a.res==='Siker'?'ok':a.res==='Részleges'?'wt':'off'}">${esc(a.res)}</span><span class="mono" style="color:var(--mut)">${a.method?esc(a.method):''}${a.roll!=null?' · dobás '+a.roll:''}</span>${tn.phase<3?'<span class="tg wt">közlés előtt</span>':''}</div>${a.why?`<div class="why">${esc(a.why)}</div>`:''}`:'<div style="color:var(--mut)">Még nincs elbírálva.</div>';
+  // kör-eredmény diagram
+  const done=r?r.turns.filter(x=>x.phase===3&&x.adj[t]):[];
+  h+='<div class="sub">Eredmények körönként · oszlop = hatás, vonal = kumulált index</div>';
+  if(!done.length)h+='<div style="color:var(--mut)">Még nincs lezárt kör.</div>';
+  else{
+    const W=340,H=96,pl=22,pr=6,pt=12,pb=16,d=done.map(x=>[2,1,-1][RESL.indexOf(x.adj[t].res)]);
+    let c=0;const cum=d.map(v=>c+=v),lo=Math.min(-1,...cum),hi=Math.max(2,...cum);
+    const y=v=>pt+(hi-v)/(hi-lo)*(H-pt-pb),bw=Math.min(26,(W-pl-pr)/d.length*.6),x=i=>pl+(i+.5)*(W-pl-pr)/d.length;
+    const col=v=>v>=2?'var(--ok)':v>0?'var(--now)':'var(--bad)',lt=v=>v>=2?'S':v>0?'R':'K';
+    let g=`<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${TEAMS[t].nm} eredményei körönként">`;
+    g+=`<line x1="${pl}" x2="${W-pr}" y1="${y(0)}" y2="${y(0)}" stroke="var(--ln)"/><text x="${pl-4}" y="${y(0)+3}" text-anchor="end" font-size="9" fill="var(--mut)">0</text><text x="${pl-4}" y="${y(hi)+3}" text-anchor="end" font-size="9" fill="var(--mut)">${hi}</text><text x="${pl-4}" y="${y(lo)+3}" text-anchor="end" font-size="9" fill="var(--mut)">${lo}</text>`;
+    d.forEach((v,i)=>{const y0=y(0),y1=y(v);g+=`<rect x="${x(i)-bw/2}" y="${Math.min(y0,y1)}" width="${bw}" height="${Math.max(2,Math.abs(y1-y0))}" rx="2" fill="${col(v)}" opacity=".85"><title>T${done[i].i}: ${done[i].adj[t].res} (${v>0?'+':''}${v})</title></rect><text x="${x(i)}" y="${v>0?y(v)-3:y(v)+10}" text-anchor="middle" font-size="9" font-weight="700" fill="var(--ink)">${lt(v)}</text><text x="${x(i)}" y="${H-3}" text-anchor="middle" font-size="9" fill="var(--mut)">T${done[i].i}</text>`});
+    g+=`<polyline fill="none" stroke="var(--ac)" stroke-width="2" points="${cum.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>`+cum.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3" fill="var(--ac)"><title>Kumulált: ${v}</title></circle>`).join('');
+    h+=g+'</svg>';
+    h+=`<div style="color:var(--mut);margin-top:2px">S = siker · R = részleges · K = kudarc &nbsp;|&nbsp; ${ts.res[0]} / ${ts.res[1]} / ${ts.res[2]}</div>`;
+  }
+  return h;
+}
 function mapHtml(r,tn){
   const ts=teamState(r),hot=tn&&tn.inject?(tn.inject.match(/[A-C][1-3]/g)||[]):[];
-  const pos=sec=>{const c=SEC.indexOf(sec);return{x:(c%3+.5)/3*100,y:(Math.floor(c/3)+.5)/3*100}};
-  // sorrend: A1..A3 felső sor => SEC[0..2]
-  let h=`<div class="mapw"><canvas id="mapc" aria-label="Terepkép"></canvas><div class="mgrid">`+SEC.map(s=>`<div class="${hot.includes(s)?'hot pulse':''}"><span>${s}</span></div>`).join('')+'</div>';
-  'KPZ'.split('').forEach((t,k)=>{const p=pos(ts[t].sec);h+=`<div class="mk2" style="left:${p.x+(k-1)*5}%;top:${p.y+(k-1)*3}%">${sym(t,34)}<i>${TEAMS[t].nm} ${ts[t].idx>=0?'+':''}${ts[t].idx}</i></div>`});
+  const pos=sec=>{const c=SEC.indexOf(sec);return{x:(c%3+.5)/3*100,y:(Math.floor(c/3)+.5)/3*100,c:c%3,r:Math.floor(c/3)}};
+  let h=`<div class="mapw"><div class="mclip"><canvas id="mapc" aria-label="Terepkép"></canvas><div class="mgrid">`+SEC.map(s=>`<div class="${hot.includes(s)?'hot pulse':''}"><span>${s}</span></div>`).join('')+'</div></div>';
+  'KPZ'.split('').forEach((t,k)=>{const p=pos(ts[t].sec);
+    h+=`<button type="button" class="mk2 ${UI.pin===t?'pin':''}" data-act="mkpin" data-id="${t}" aria-label="${TEAMS[t].nm} csapat: döntési mátrix és eredmények" style="left:${p.x+(k-1)*5}%;top:${p.y+(k-1)*3}%">${sym(t,34)}<i>${TEAMS[t].nm} ${ts[t].idx>=0?'+':''}${ts[t].idx}</i></button><div class="tip c${p.c} r${p.r}" role="tooltip">${teamCard(t,r,tn)}</div>`});
   return h+'</div>';
 }
 function renderBoard(){
@@ -533,8 +591,8 @@ function renderBoard(){
   if(!mode)return`<div class="panel hud pad"><h3>Játéktér</h3><p>A Játéktér a handbook szerint három helyen szólal meg: playtest (06–07. lépés), főpróba (09.) és a végrehajtás (12–13.). Jelenleg a(z) ${S.step}. lépésnél tartasz, ezért zárolt.</p><button class="btn" data-act="tab" data-v="flow" type="button">Vissza a folyamathoz</button></div>`;
   let r=active?(openRun(mode)||(mode==='execution'?lastRun(mode):null)):lastRun(mode),tn=curTurn(r);const c=cfg();
   let h='<div class="board"><div class="col">';
-  h+=`<section class="panel hud pad"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px"><h3 style="font-size:20px">Játéktér · ${MODENAME[mode]}</h3><span class="chipx ${active?'hu':''}">${active?'aktív a(z) '+S.step+'. lépésben':'csak olvasható'}</span>${r?`<span class="chipx">${r.id}. futás</span>`:''}<span class="sp"></span><span class="chipx">${esc(c.adj)}</span><span class="chipx">${c.turns} kör</span></div>`;
-  h+=mapHtml(r,tn)+`<div class="lbl" style="margin-top:8px">A térkép kisalakzatai az elbírálás eredményét követik · ▲ sárga mező = az injekt által érintett szektor</div></section>`;
+  h+=`<section class="panel hud pad" style="z-index:6"><div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px"><h3 style="font-size:20px">Játéktér · ${MODENAME[mode]}</h3><span class="chipx ${active?'hu':''}">${active?'aktív a(z) '+S.step+'. lépésben':'csak olvasható'}</span>${r?`<span class="chipx">${r.id}. futás</span>`:''}<span class="sp"></span><span class="chipx">${esc(c.adj)}</span><span class="chipx">${c.turns} kör</span></div>`;
+  h+=mapHtml(r,tn)+`<div class="lbl" style="margin-top:8px">A kisalakzatok az elbírálás eredményét követik · sárga mező = az injekt által érintett szektor · <b>vidd az egeret a csapatra</b> (vagy koppints rá) a kör döntési mátrixáért és eredményeiért</div></section>`;
   h+='<section class="panel pad"><div class="lbl" style="margin-bottom:8px">Kör-napló és DCAP-adat (automatikusan, észrevétlenül)</div>';
   const done=r?r.turns.filter(t=>t.phase===3):[];
   h+=done.length?`<div class="scr"><table><thead><tr><th>Kör</th><th>Injekt</th><th>Eredmények</th><th>Idő</th></tr></thead><tbody>${done.map(t=>`<tr><td class="mono">T${t.i}</td><td>${esc(t.inject)}</td><td>${activeTeams(t).map(x=>`${TEAMS[x].nm}: ${t.adj[x]?esc(t.adj[x].res):'—'}`).join('<br>')}</td><td class="mono">${t.t0&&t.t3?Math.round((t.t3-t.t0)/60000)+' p':'—'}</td></tr>`).join('')}</tbody></table></div>`:'<div style="color:var(--mut)">Még nincs lezárt kör.</div>';
@@ -662,6 +720,7 @@ document.addEventListener('click',e=>{
     case'pphone':{const w=$('#p-why').value.trim();if(!w){toast('Az indoklás kötelező');return}const tn=curTurn(openRun(modeForStep(S.step)));if(tn&&tn.phase===1){tn.orders[id]={act:$('#p-act').value,sec:$('#p-sec').value,why:w,src:'ember (mobil)',at:Date.now()};save();refreshPhone();if(UI.view==='board')render()}break}
     case'pphoneR':phoneSubmit();break;
     case'newrun':newRun(b.dataset.m);render();break;
+    case'mkpin':UI.pin=UI.pin===id?null:id;render();break;
     case'newturn':{const r=openRun(modeForStep(S.step));newTurn(r);render();break}
     case'autoturn':{const m=modeForStep(S.step);let r=openRun(m);if(!r)r=newRun(m);autoTurn(r);render();break}
     case'closerun':{const r=openRun(modeForStep(S.step));if(r){r.status='closed';}render();refreshGate();toast('Futás lezárva');break}

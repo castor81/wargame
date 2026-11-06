@@ -2,7 +2,7 @@
 
 A NATO Wargaming Handbook (HQ SACT, 2023) 18 lépéses folyamatára épülő wargame-alkalmazás.
 
-**Jelenlegi verzió:** demó v0.2.1 (2026-11-06) – egyfájlos (`index.html`) prototípus, a telefonos játékosnézet élő szinkronnal (Supabase).
+**Jelenlegi verzió:** demó v0.2.2 (2026-11-06) – egyfájlos (`index.html`) prototípus, telefonos játékosnézet élő szinkronnal (Supabase), térképes csapatkártyával (hover/koppintás: döntési mátrix + eredmény-diagramok).
 
 ## Mit tud a v0.2
 - 18 lépéses életciklus kapukkal (szerepfeladatok, produktum, megbízói pontok, DCAP- és rendezvényszál)
